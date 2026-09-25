@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScamShield — Multi-Modal Fraud & Phishing Intelligence Platform</title>
+    <meta name="description" content="Real-time multi-modal scam detection combining NLP text classification, lookalike URL heuristics, and transaction fraud scoring.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-glows">
+        <div class="glow-orb orb-primary"></div>
+        <div class="glow-orb orb-danger"></div>
+        <div class="glow-orb orb-accent"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M9 12l2 2 4-4"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>ScamShield<span class="badge-ai">AI ENGINE</span></h1>
+                    <p class="brand-tagline">Multi-Modal Risk Scoring & Threat Defense</p>
+                </div>
+            </div>
+
+            <nav class="nav-tabs" role="tablist">
+                <button class="nav-tab active" data-tab="message-scanner" id="tab-message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Message & URL Scanner
+                </button>
+                <button class="nav-tab" data-tab="transaction-checker" id="tab-transaction">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                    Transaction Simulator
+                </button>
+                <button class="nav-tab" data-tab="community-feed" id="tab-community">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Community DB & Report
+                </button>
+                <button class="nav-tab" data-tab="fusion-tuner" id="tab-tuner">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                    Fusion Weights
+                </button>
+            </nav>
+
+            <div class="header-status">
+                <span class="status-indicator online"></span>
+                <span class="status-label" id="api-status-text">Backend Active</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+        <!-- Stats Bar -->
+        <section class="metrics-overview" id="metrics-bar">
+            <div class="metric-card">
+                <div class="metric-info">
+                    <span class="metric-label">Safe Range</span>
+                    <span class="metric-val text-safe">&lt; 40 / 100</span>
+                </div>
+                <div class="metric-icon safe-icon">🛡️</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <span class="metric-label">Suspicious Zone</span>
+                    <span class="metric-val text-warning">40 – 74 / 100</span>
+                </div>
+                <div class="metric-icon warn-icon">⚠️</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <span class="metric-label">Dangerous Alert</span>
+                    <span class="metric-val text-danger">&ge; 75 / 100</span>
+                </div>
+                <div class="metric-icon danger-icon">🚨</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-info">
+                    <span class="metric-label">Fusion Weights</span>
+                    <span class="metric-val text-accent">55% Text / 45% URL</span>
+                </div>
+                <div class="metric-icon accent-icon">⚖️</div>
+            </div>
+        </section>
+
+        <!-- TAB 1: MESSAGE & URL SCANNER -->
+        <section class="tab-content active" id="view-message-scanner">
+            <div class="grid-2col">
+                <!-- Left: Input Console -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Inspect Message & Links</h2>
+                        <span class="panel-tag">Multi-Modal AI</span>
+                    </div>
+
+                    <!-- Quick Demo Presets -->
+                    <div class="presets-container">
+                        <label class="section-label">Load Quick Preset Test Cases:</label>
+                        <div class="presets-row">
+                            <button class="btn-preset" data-preset="bofa">Bank Phishing</button>
+                            <button class="btn-preset" data-preset="irs">IRS Tax Scam</button>
+                            <button class="btn-preset" data-preset="lottery">Lottery Prize</button>
+                            <button class="btn-preset" data-preset="safe">Calendar Meeting</button>
+                            <button class="btn-preset" data-preset="crypto">Coinbase Alert</button>
+                        </div>
+                    </div>
+
+                    <form id="form-scan-message" class="scanner-form">
+                        <div class="form-group">
+                            <label for="input-message-text" class="input-label">Message Content (SMS, WhatsApp, Email, Phishing SMS):</label>
+                            <textarea id="input-message-text" class="form-textarea" rows="5" placeholder="Paste suspicious SMS or message text here... (e.g., 'URGENT: Your Chase account is locked. Verify at http://chase-security.xyz')"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-urls" class="input-label">Optional Specific URLs (Leave empty for auto-extraction):</label>
+                            <input type="text" id="input-urls" class="form-input" placeholder="e.g. http://chase-auth-login.xyz">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary" id="btn-run-scan">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <span>Scan Message & Links</span>
+                            </button>
+                            <button type="button" class="btn-secondary" id="btn-clear-message">Clear</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right: Inspection Result & Verdict -->
+                <div class="panel glass-panel" id="message-results-panel">
+                    <div class="panel-header">
+                        <h2>Verdict & Modality Breakdown</h2>
+                        <span class="verdict-pill verdict-idle" id="badge-verdict">Ready for Input</span>
+                    </div>
+
+                    <div id="results-empty-state" class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h3>No Scan Executed Yet</h3>
+                        <p>Paste text on the left or select a preset to analyze real-time text risk, domain lookalikes, and weighted fusion.</p>
+                    </div>
+
+                    <div id="results-active-state" class="results-active hidden">
+                        <!-- Overall Verdict Hero Card -->
+                        <div class="verdict-hero-card" id="verdict-hero-box">
+                            <div class="score-circle-wrapper">
+                                <div class="score-circle" id="verdict-score-ring">
+                                    <span class="score-number" id="val-overall-score">0</span>
+                                    <span class="score-denom">/ 100</span>
+                                </div>
+                            </div>
+                            <div class="verdict-summary">
+                                <div class="verdict-title-row">
+                                    <h3 id="val-verdict-title">Safe</h3>
+                                    <span class="confidence-tag" id="val-confidence">Confidence: 95%</span>
+                                </div>
+                                <p class="verdict-desc" id="val-verdict-desc">Analysis completed successfully.</p>
+                                <div class="fusion-formula-chip" id="val-fusion-formula">
+                                    Formula: (Text * 0.55) + (URL * 0.45)
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modality Scores Comparison -->
+                        <div class="modality-grid">
+                            <!-- Text Risk Card -->
+                            <div class="modality-card">
+                                <div class="modality-header">
+                                    <div class="modality-title">
+                                        <span class="modality-icon">📝</span>
+                                        <strong>Text Scorer (ML + NLP)</strong>
+                                    </div>
+                                    <span class="modality-badge" id="badge-text-label">0</span>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-bar" id="bar-text-score" style="width: 0%;"></div>
+                                </div>
+                                <div class="feature-tags-list" id="list-text-features"></div>
+                            </div>
+
+                            <!-- URL Risk Card -->
+                            <div class="modality-card">
+                                <div class="modality-header">
+                                    <div class="modality-title">
+                                        <span class="modality-icon">🔗</span>
+                                        <strong>URL Scorer (Lookalike)</strong>
+                                    </div>
+                                    <span class="modality-badge" id="badge-url-label">0</span>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-bar" id="bar-url-score" style="width: 0%;"></div>
+                                </div>
+                                <div class="url-details-list" id="list-url-details"></div>
+                            </div>
+                        </div>
+
+                        <!-- Detected Risk Reasons Box -->
+                        <div class="reasons-box">
+                            <label class="section-label">Explainability & Primary Signals:</label>
+                            <ul class="reasons-list" id="list-reasons"></ul>
+                        </div>
+
+                        <!-- One Click Community Report Action -->
+                        <div class="quick-report-prompt">
+                            <span>Detected a verified threat?</span>
+                            <button class="btn-outline-danger" id="btn-quick-report">
+                                🚨 Log to Community Threat DB
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: TRANSACTION FRAUD SIMULATOR -->
+        <section class="tab-content" id="view-transaction-checker">
+            <div class="grid-2col">
+                <!-- Left: Payment Simulator Inputs -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Transaction Fraud Simulator</h2>
+                        <span class="panel-tag">Rule Engine</span>
+                    </div>
+
+                    <form id="form-scan-transaction" class="scanner-form">
+                        <div class="form-group">
+                            <label for="input-payee" class="input-label">Payee / Recipient Identifier (UPI VPA, Account or Name):</label>
+                            <input type="text" id="input-payee" class="form-input" placeholder="e.g. crypto_escrow_refund@upi or merchant_outlet" value="crypto_escrow_refund@upi">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-amount" class="input-label">Transfer Amount ($ or ₹):</label>
+                            <div class="amount-input-row">
+                                <input type="number" id="input-amount" class="form-input" min="1" step="0.01" value="50000">
+                                <div class="quick-chips">
+                                    <button type="button" class="chip-btn" data-amt="500">$500</button>
+                                    <button type="button" class="chip-btn" data-amt="9999">$9,999</button>
+                                    <button type="button" class="chip-btn active" data-amt="50000">$50,000</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="input-channel" class="input-label">Payment Channel:</label>
+                                <select id="input-channel" class="form-select">
+                                    <option value="upi">UPI / Instant Transfer</option>
+                                    <option value="bank_transfer">Bank Wire (ACH / NEFT)</option>
+                                    <option value="crypto" selected>Crypto Wallet / P2P</option>
+                                    <option value="giftcard">Gift Card / Voucher</option>
+                                    <option value="card">Credit / Debit Card</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="input-time" class="input-label">Simulated Time Window:</label>
+                                <select id="input-time" class="form-select">
+                                    <option value="2026-09-25T14:30:00">Normal Daytime (02:30 PM)</option>
+                                    <option value="2026-09-25T03:15:00" selected>Anomalous Late Night (03:15 AM)</option>
+                                    <option value="2026-09-25T23:50:00">Late Evening (11:50 PM)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group checkbox-row">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="check-first-time" checked>
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">First-Time Transfer to this Payee</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-notes" class="input-label">Payment Memo / Remarks:</label>
+                            <input type="text" id="input-notes" class="form-input" placeholder="e.g. Urgent custom clearance fee and kyc unlock" value="Urgent custom clearance fee and kyc unlock">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary" id="btn-check-txn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                <span>Evaluate Transaction Risk</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right: Transaction Fraud Assessment -->
+                <div class="panel glass-panel" id="txn-results-panel">
+                    <div class="panel-header">
+                        <h2>Transaction Security Assessment</h2>
+                        <span class="verdict-pill verdict-idle" id="badge-txn-verdict">Ready</span>
+                    </div>
+
+                    <div id="txn-empty-state" class="empty-state">
+                        <div class="empty-icon">💳</div>
+                        <h3>Transaction Evaluator</h3>
+                        <p>Simulate transaction amounts, new payees, and unusual hours to view independent rule-based fraud scoring.</p>
+                    </div>
+
+                    <div id="txn-active-state" class="results-active hidden">
+                        <div class="verdict-hero-card" id="txn-hero-box">
+                            <div class="score-circle-wrapper">
+                                <div class="score-circle" id="txn-score-ring">
+                                    <span class="score-number" id="val-txn-score">0</span>
+                                    <span class="score-denom">/ 100</span>
+                                </div>
+                            </div>
+                            <div class="verdict-summary">
+                                <div class="verdict-title-row">
+                                    <h3 id="val-txn-title">Dangerous</h3>
+                                    <span class="channel-tag" id="val-txn-channel">Crypto / P2P</span>
+                                </div>
+                                <p class="verdict-desc" id="val-txn-desc">Multiple high-risk fraud triggers detected.</p>
+                            </div>
+                        </div>
+
+                        <!-- Granular Risk Factor Points Table -->
+                        <div class="factors-table-container">
+                            <label class="section-label">Triggered Risk Factors & Point Deductions:</label>
+                            <table class="factors-table">
+                                <thead>
+                                    <tr>
+                                        <th>Factor</th>
+                                        <th>Severity</th>
+                                        <th>Description</th>
+                                        <th>Risk Pts</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-risk-factors"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: COMMUNITY SCAM DATABASE & REPORT PORTAL -->
+        <section class="tab-content" id="view-community-feed">
+            <div class="grid-2col">
+                <!-- Left: Submit New Report Form -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Report a Scam</h2>
+                        <span class="panel-tag">Community Threat Intel</span>
+                    </div>
+
+                    <form id="form-report-scam" class="scanner-form">
+                        <div class="form-group">
+                            <label for="report-type" class="input-label">Scam Category:</label>
+                            <select id="report-type" class="form-select">
+                                <option value="message">Phishing / Smishing SMS</option>
+                                <option value="url">Malicious / Lookalike URL</option>
+                                <option value="transaction">Payment / UPI Fraud</option>
+                                <option value="other">Other Extortion / Social Engineering</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="report-content" class="input-label">Scam Text or Link Content:</label>
+                            <textarea id="report-content" class="form-textarea" rows="4" placeholder="Paste the exact suspicious message or malicious URL here..." required></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="report-sender" class="input-label">Sender Phone / UPI / Handle (Optional):</label>
+                                <input type="text" id="report-sender" class="form-input" placeholder="e.g. +1-800-555-0199 or shady@upi">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="report-risk-score" class="input-label">Scanned Risk Score (0-100):</label>
+                                <input type="number" id="report-risk-score" class="form-input" min="0" max="100" placeholder="e.g. 95">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="report-reason" class="input-label">Why is this a scam? (Evidence & details):</label>
+                            <input type="text" id="report-reason" class="form-input" placeholder="e.g. Pretended to be Chase bank requesting password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="report-email" class="input-label">Your Email (Optional for updates):</label>
+                            <input type="email" id="report-email" class="form-input" placeholder="name@domain.com">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-danger" id="btn-submit-report">
+                                <span>Submit Threat Report</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right: Live Community Scam Threat Feed -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Live Threat Intelligence Feed</h2>
+                        <button class="btn-icon-refresh" id="btn-refresh-feed" title="Refresh Feed">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="feed-filters-row">
+                        <button class="filter-chip active" data-filter="all">All Reports</button>
+                        <button class="filter-chip" data-filter="message">Messages</button>
+                        <button class="filter-chip" data-filter="url">URLs</button>
+                        <button class="filter-chip" data-filter="transaction">Transactions</button>
+                    </div>
+
+                    <div class="reports-feed-list" id="community-reports-list">
+                        <div class="loading-spinner">Loading community threats...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: FUSION WEIGHTS & EXTENSIBILITY TUNER -->
+        <section class="tab-content" id="view-fusion-tuner">
+            <div class="panel glass-panel max-w-800">
+                <div class="panel-header">
+                    <h2>Multi-Modal Fusion Weights & Architecture</h2>
+                    <span class="panel-tag">Interactive Tuner</span>
+                </div>
+                <p class="section-desc">
+                    The ScamShield fusion engine combines independent modality scores into a unified 0-100 verdict. 
+                    Default weights: <strong>55% Text (NLP ML)</strong> and <strong>45% URL (Lookalike heuristics)</strong>. 
+                    A 3rd placeholder weight (Transaction Risk) is built-in for zero-rewrite extensibility.
+                </p>
+
+                <div class="tuner-box">
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-name">Text Risk Scorer Weight (w<sub>text</sub>):</span>
+                            <span class="slider-val" id="disp-w-text">0.55</span>
+                        </div>
+                        <input type="range" id="slider-w-text" min="0" max="1" step="0.05" value="0.55" class="tuner-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-name">URL Risk Scorer Weight (w<sub>url</sub>):</span>
+                            <span class="slider-val" id="disp-w-url">0.45</span>
+                        </div>
+                        <input type="range" id="slider-w-url" min="0" max="1" step="0.05" value="0.45" class="tuner-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-name">Transaction Weight Placeholder (w<sub>txn</sub>):</span>
+                            <span class="slider-val" id="disp-w-txn">0.00</span>
+                        </div>
+                        <input type="range" id="slider-w-txn" min="0" max="1" step="0.05" value="0.00" class="tuner-slider">
+                    </div>
+
+                    <div class="tuner-calc-preview">
+                        <h4>Live Simulation with Sample (Text: 86, URL: 94):</h4>
+                        <div class="calc-formula-display" id="disp-sim-formula">
+                            (0.55 * 86) + (0.45 * 94) = 89.6 &rarr; <span class="text-danger font-bold">Dangerous</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

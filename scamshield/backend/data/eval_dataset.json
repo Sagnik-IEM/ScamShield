@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "text": "CRITICAL ALERT: Your Bank of America debit card has been suspended due to suspected fraud. Re-activate your card now at http://bofa-card-reactivate.xyz/login immediately.",
+    "expected_text_label": "Dangerous",
+    "expected_url_label": "Dangerous",
+    "expected_verdict": "Dangerous",
+    "ground_truth": 1,
+    "category": "banking_phishing"
+  },
+  {
+    "id": 2,
+    "text": "IRS tax rebate notice: You are entitled to a refund of $1,420.50. Submit your direct deposit banking details at http://irs-tax-refund-gov.top to receive funds.",
+    "expected_text_label": "Dangerous",
+    "expected_url_label": "Dangerous",
+    "expected_verdict": "Dangerous",
+    "ground_truth": 1,
+    "category": "tax_scam"
+  },
+  {
+    "id": 3,
+    "text": "CONGRATS! Your mobile number won $500,000 in the Walmart Anniversary Sweepstakes! Click http://walmart-winner-claim.buzz to claim immediately.",
+    "expected_text_label": "Dangerous",
+    "expected_url_label": "Dangerous",
+    "expected_verdict": "Dangerous",
+    "ground_truth": 1,
+    "category": "lottery_scam"
+  },
+  {
+    "id": 4,
+    "text": "FedEx delivery update: Package #FDX98217 failed delivery. A $2.99 fee is required to reschedule delivery: http://fedex-redelivery-fees.icu",
+    "expected_text_label": "Dangerous",
+    "expected_url_label": "Dangerous",
+    "expected_verdict": "Dangerous",
+    "ground_truth": 1,
+    "category": "delivery_smishing"
+  },
+  {
+    "id": 5,
+    "text": "Dear user, unusual sign-in attempt detected on your PayPal account from an unrecognized IP address. Review session at http://paypal-security-alert.xyz",
+    "expected_text_label": "Dangerous",
+    "expected_url_label": "Dangerous",
+    "expected_verdict": "Dangerous",
+    "ground_truth": 1,
+    "category": "account_takeover"
+  },
+  {
+    "id": 6,
+    "text": "Urgent KYC update required: Your Paytm wallet will be deactivated within 12 hours. Update documents immediately.",
+    "expected_text_label": "Dangerous",
+    "expected_url_label": "Safe",
+    "expected_verdict": "Suspicious",
+    "ground_truth": 1,
+    "category": "urgent_sms_no_link"
+  },
+  {
+    "id": 7,
+    "text": "Your Coinbase account withdrawal request of 0.45 BTC is pending. If not initiated by you, call support urgently at 1-888-555-0144.",
+    "expected_text_label": "Dangerous",
+    "expected_url_label": "Safe",
+    "expected_verdict": "Suspicious",
+    "ground_truth": 1,
+    "category": "crypto_support_scam"
+  },
+  {
+    "id": 8,
+    "text": "Hi Alex, can you review the meeting notes and slide deck attached before our client presentation at 3 PM?",
+    "expected_text_label": "Safe",
+    "expected_url_label": "Safe",
+    "expected_verdict": "Safe",
+    "ground_truth": 0,
+    "category": "legitimate_work"
+  },
+  {
+    "id": 9,
+    "text": "Hey, your order from Sephora has shipped! Track your package on our official portal at https://www.sephora.com/orders/track",
+    "expected_text_label": "Safe",
+    "expected_url_label": "Safe",
+    "expected_verdict": "Safe",
+    "ground_truth": 0,
+    "category": "legitimate_retail"
+  },
+  {
+    "id": 10,
+    "text": "Your monthly gym membership invoice for $45.00 has been paid successfully via your Visa card ending in 4128.",
+    "expected_text_label": "Safe",
+    "expected_url_label": "Safe",
+    "expected_verdict": "Safe",
+    "ground_truth": 0,
+    "category": "legitimate_receipt"
+  },
+  {
+    "id": 11,
+    "text": "Don't forget we have family dinner at Grandma's house this Sunday at 6 PM. Let me know if you can bring dessert!",
+    "expected_text_label": "Safe",
+    "expected_url_label": "Safe",
+    "expected_verdict": "Safe",
+    "ground_truth": 0,
+    "category": "legitimate_personal"
+  },
+  {
+    "id": 12,
+    "text": "Here is the code review feedback on PR 304. Looks great overall, just left two minor comments regarding error handling in auth service.",
+    "expected_text_label": "Safe",
+    "expected_url_label": "Safe",
+    "expected_verdict": "Safe",
+    "ground_truth": 0,
+    "category": "legitimate_tech"
+  }
+]
