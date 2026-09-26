@@ -5,7 +5,7 @@ import AnalyzeButton from '../components/AnalyzeButton';
 import QuickFillButtons from '../components/QuickFillButtons';
 import ErrorState from '../components/ErrorState';
 import LoadingState from '../components/LoadingState';
-import { analyzeMessage, analyzeUrl } from '../services/api';
+import { checkMessage } from '../services/api';
 
 export default function Home({
   onNavigate,
@@ -16,7 +16,6 @@ export default function Home({
   const [message, setMessage] = useState(savedInput?.message || '');
   const [url, setUrl] = useState(savedInput?.url || '');
   const [activePresetId, setActivePresetId] = useState(savedInput?.activePresetId || null);
-  const [mockVariant, setMockVariant] = useState('DANGEROUS');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -83,25 +82,17 @@ export default function Home({
     setError(null);
 
     try {
-      let result;
-      let analysisType;
+      const payload = {
+        message: trimmedMessage || trimmedUrl,
+        urls: trimmedUrl ? [trimmedUrl] : undefined
+      };
 
-      if (trimmedMessage) {
-        analysisType = 'message';
-        result = await analyzeMessage({
-          message: trimmedMessage,
-          url: trimmedUrl || null,
-          transaction: null
-        }, mockVariant);
-      } else {
-        analysisType = 'url';
-        result = await analyzeUrl(trimmedUrl, mockVariant);
-      }
+      const result = await checkMessage(payload);
 
       const analysisData = {
         result,
         input: {
-          type: analysisType,
+          type: trimmedMessage ? 'message' : 'url',
           message: trimmedMessage,
           url: trimmedUrl
         }
@@ -163,42 +154,6 @@ export default function Home({
             onChange={handleUrlChange}
             placeholder="https://example-suspicious-link.com"
           />
-        </div>
-
-        {/* Testing Mode Selector */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          backgroundColor: '#0b1120',
-          padding: '0.65rem 1rem',
-          borderRadius: '8px',
-          border: '1px solid var(--border-color)',
-          fontSize: '0.85rem'
-        }}>
-          <span style={{ color: 'var(--text-muted)' }}>Mock Testing Verdict:</span>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', color: mockVariant === 'DANGEROUS' ? '#ef4444' : 'var(--text-muted)' }}>
-              <input
-                type="radio"
-                name="variant"
-                value="DANGEROUS"
-                checked={mockVariant === 'DANGEROUS'}
-                onChange={() => setMockVariant('DANGEROUS')}
-              />
-              Dangerous Sample
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer', color: mockVariant === 'SAFE' ? '#10b981' : 'var(--text-muted)' }}>
-              <input
-                type="radio"
-                name="variant"
-                value="SAFE"
-                checked={mockVariant === 'SAFE'}
-                onChange={() => setMockVariant('SAFE')}
-              />
-              Safe Sample
-            </label>
-          </div>
         </div>
 
         {/* Actions */}

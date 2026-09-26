@@ -6,30 +6,54 @@ import React from 'react';
  * Requirements:
  * 1. Must always render three rows -- Message Risk, URL Risk, Transaction Risk -- 
  *    even when a component's value is null.
- * 2. A null component score shows "Not available", it is never omitted from the layout.
- * 3. Specific backend copy when data was not provided:
- *    - No URL found in message -> "Insufficient information for URL analysis."
- *    - Incomplete transaction fields -> "Transaction risk unavailable because transaction details were not provided."
+ * 2. Displays calibrated score from overall_score or score.
+ * 3. Specific copy when data was not provided:
+ *    - No message text -> "Message analysis unavailable because no text was provided."
+ *    - No URL found -> "Insufficient information for URL analysis."
+ *    - No transaction -> "Transaction risk unavailable because transaction details were not provided."
  */
 export default function RiskScore({
-  score = 0,
+  score = null,
+  overall_score = null,
+  overallScore = null,
   messageRisk = null,
+  text_risk = null,
+  textRisk = null,
   textScore = null,
   urlRisk = null,
+  url_risk = null,
   urlScore = null,
   transactionRisk = null,
-  transactionScore = null
+  transactionScore = null,
+  risk_score = null
 }) {
-  // Support both prop naming conventions
-  const resolvedMessageRisk = messageRisk !== null ? messageRisk : textScore;
-  const resolvedUrlRisk = urlRisk !== null ? urlRisk : urlScore;
-  const resolvedTransactionRisk = transactionRisk !== null ? transactionRisk : transactionScore;
+  // Resolve overall score
+  const resolvedScore = overall_score ?? overallScore ?? score ?? risk_score ?? 0;
+
+  // Resolve message risk score
+  let resolvedMessageRisk = messageRisk ?? textScore;
+  if (resolvedMessageRisk === null && text_risk !== null && typeof text_risk === 'object') {
+    resolvedMessageRisk = text_risk.score;
+  } else if (resolvedMessageRisk === null && textRisk !== null && typeof textRisk === 'object') {
+    resolvedMessageRisk = textRisk.score;
+  }
+
+  // Resolve URL risk score
+  let resolvedUrlRisk = urlRisk ?? urlScore;
+  if (resolvedUrlRisk === null && url_risk !== null && typeof url_risk === 'object') {
+    resolvedUrlRisk = url_risk.score;
+  } else if (resolvedUrlRisk === null && urlRisk !== null && typeof urlRisk === 'object') {
+    resolvedUrlRisk = urlRisk.score;
+  }
+
+  // Resolve transaction risk score
+  const resolvedTransactionRisk = transactionRisk ?? transactionScore;
 
   const getScoreColor = (val) => {
     if (val === null || val === undefined) return '#94a3b8';
-    if (val >= 70) return '#ef4444';
-    if (val >= 30) return '#f59e0b';
-    return '#10b981';
+    if (val >= 75) return '#ef4444'; // Dangerous (>= 75)
+    if (val >= 40) return '#f59e0b'; // Suspicious (40-74)
+    return '#10b981'; // Safe (< 40)
   };
 
   const rows = [
@@ -69,8 +93,9 @@ export default function RiskScore({
         <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Overall Risk Score
         </span>
-        <div style={{ fontSize: '3rem', fontWeight: '800', color: getScoreColor(score), lineHeight: '1.1' }}>
-          {score} <span style={{ fontSize: '1.25rem', color: 'var(--text-muted)', fontWeight: '400' }}>/ 100</span>
+        <div style={{ fontSize: '3rem', fontWeight: '800', color: getScoreColor(resolvedScore), lineHeight: '1.1' }}>
+          {typeof resolvedScore === 'number' ? Math.round(resolvedScore) : resolvedScore}{' '}
+          <span style={{ fontSize: '1.25rem', color: 'var(--text-muted)', fontWeight: '400' }}>/ 100</span>
         </div>
       </div>
 
@@ -84,7 +109,7 @@ export default function RiskScore({
         width: '100%'
       }}>
         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>
-          Sub-Score Breakdown
+          Modality Score Breakdown
         </div>
 
         {rows.map((row) => {
@@ -116,7 +141,7 @@ export default function RiskScore({
                   color: isAvailable ? getScoreColor(row.value) : 'var(--text-muted)',
                   fontStyle: isAvailable ? 'normal' : 'italic'
                 }}>
-                  {isAvailable ? `${row.value} / 100` : 'Not available'}
+                  {isAvailable ? `${Math.round(row.value)} / 100` : 'Not available'}
                 </div>
               </div>
 

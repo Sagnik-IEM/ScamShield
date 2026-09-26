@@ -62,7 +62,7 @@ export function getReportFrequency(count) {
 }
 
 /**
- * Screen E: Community Intelligence Database Component
+ * Screen E: Community Threat Intelligence Search Component
  */
 export default function CommunityReports({
   initialQuery = '',
@@ -72,7 +72,6 @@ export default function CommunityReports({
   const [result, setResult] = useState(externalResult);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [mockVariant, setMockVariant] = useState('DANGEROUS');
 
   useEffect(() => {
     if (initialQuery) {
@@ -98,7 +97,7 @@ export default function CommunityReports({
     setError(null);
 
     try {
-      const res = await searchReports(target.trim(), mockVariant);
+      const res = await searchReports(target.trim());
       setResult(res);
     } catch (err) {
       setError(err?.message || 'Failed to search community database.');
@@ -107,9 +106,8 @@ export default function CommunityReports({
     }
   };
 
-  const handleApplyPreset = (presetTerm, variant) => {
+  const handleApplyPreset = (presetTerm) => {
     setQuery(presetTerm);
-    setMockVariant(variant);
     handleSearch(presetTerm);
   };
 
@@ -129,7 +127,7 @@ export default function CommunityReports({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '1.4rem' }}>🛡️</span>
           <h3 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#f8fafc', margin: 0 }}>
-            Community Threat Registry
+            Community Threat Registry Search
           </h3>
         </div>
         <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
@@ -137,7 +135,7 @@ export default function CommunityReports({
         </p>
       </div>
 
-      {/* Preset Buttons for Judges */}
+      {/* Preset Buttons */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           Quick Test Search Presets:
@@ -145,7 +143,7 @@ export default function CommunityReports({
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
           <button
             type="button"
-            onClick={() => handleApplyPreset('example@upi', 'DANGEROUS')}
+            onClick={() => handleApplyPreset('+18005550199')}
             style={{
               backgroundColor: '#0b1120',
               color: '#f87171',
@@ -156,11 +154,11 @@ export default function CommunityReports({
               cursor: 'pointer'
             }}
           >
-            🚨 example@upi (Reported)
+            🚨 +18005550199 (Reported)
           </button>
           <button
             type="button"
-            onClick={() => handleApplyPreset('+91-9876543210', 'DANGEROUS')}
+            onClick={() => handleApplyPreset('crypto_escrow_refund@upi')}
             style={{
               backgroundColor: '#0b1120',
               color: '#f87171',
@@ -171,11 +169,11 @@ export default function CommunityReports({
               cursor: 'pointer'
             }}
           >
-            🚨 +91-9876543210 (Reported)
+            🚨 crypto_escrow_refund@upi (Reported)
           </button>
           <button
             type="button"
-            onClick={() => handleApplyPreset('safe-merchant@upi', 'SAFE')}
+            onClick={() => handleApplyPreset('safe-merchant@upi')}
             style={{
               backgroundColor: '#0b1120',
               color: '#34d399',
@@ -275,7 +273,7 @@ export default function CommunityReports({
             </span>
           </div>
 
-          {/* Details Grid: Displaying all 4 required points */}
+          {/* Details Grid */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -283,10 +281,10 @@ export default function CommunityReports({
             borderTop: '1px solid var(--border-color)',
             paddingTop: '1rem'
           }}>
-            {/* 1. Reported Identifiers (Masked for Privacy) */}
+            {/* 1. Reported Identifier (Masked) */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Reported Identifier (Masked)
+                Queried Identifier (Masked)
               </span>
               <strong style={{ fontSize: '1rem', color: '#f8fafc', fontFamily: 'monospace' }}>
                 {maskIdentifier(query)}
@@ -311,7 +309,7 @@ export default function CommunityReports({
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Scam Category
               </span>
-              <strong style={{ fontSize: '1rem', color: '#f8fafc' }}>
+              <strong style={{ fontSize: '1rem', color: '#f8fafc', textTransform: 'capitalize' }}>
                 {result.category || (result.reported ? 'General Fraud' : 'None detected')}
               </strong>
             </div>
@@ -319,13 +317,44 @@ export default function CommunityReports({
             {/* 4. Report Frequency */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Report Frequency & Urgency
+                Report Frequency
               </span>
               <strong style={{ fontSize: '0.95rem', color: result.reported ? '#fbbf24' : 'var(--text-muted)' }}>
                 {getReportFrequency(result.report_count)}
               </strong>
             </div>
           </div>
+
+          {/* 5. Matching Report Log Entries if available */}
+          {result.reports && result.reports.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Matching Community Log Entries
+              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {result.reports.map((r) => (
+                  <div key={r.id || Math.random()} style={{
+                    backgroundColor: '#1e293b',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.88rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.25rem'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: '0.78rem' }}>
+                      <span style={{ textTransform: 'uppercase', fontWeight: '600', color: '#38bdf8' }}>{r.report_type}</span>
+                      {r.created_at && <span>{r.created_at.slice(0, 10)}</span>}
+                    </div>
+                    <div style={{ color: '#f8fafc', fontWeight: '500' }}>"{r.content}"</div>
+                    {r.reason && <div style={{ color: '#cbd5e1', fontSize: '0.82rem' }}>Reason: {r.reason}</div>}
+                    {r.risk_score && <div style={{ color: '#f87171', fontSize: '0.8rem', fontWeight: '600' }}>Logged Risk Score: {r.risk_score}/100</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

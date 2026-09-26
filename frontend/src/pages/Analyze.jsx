@@ -1,37 +1,22 @@
-import React, { useState } from 'react';
+import React from 'react';
 import RiskScore from '../components/RiskScore';
 import RiskBadge from '../components/RiskBadge';
 import SignalList from '../components/SignalList';
 import ExplanationCard from '../components/ExplanationCard';
 import RecommendationCard from '../components/RecommendationCard';
 import ReportButton from '../components/ReportButton';
-import { mockDangerousMessage, mockSafeMessage, mockDangerousUrl, mockSafeUrl } from '../services/api';
+import { mockDangerousMessage } from '../services/api';
 
 export default function Analyze({
   analysisData,
   onNavigate,
   onNewAnalysis
 }) {
-  // If navigated without data, default to dangerous mock for demonstration
-  const [currentResult, setCurrentResult] = useState(
-    analysisData?.result || mockDangerousMessage
-  );
-  const [currentInput, setCurrentInput] = useState(
-    analysisData?.input || {
-      type: 'message',
-      message: 'Dear Customer, your SBI account ending in 5021 is blocked due to an incomplete KYC profile. Please update your Aadhaar and PAN immediately at https://sbi-kyc-reactivate-portal.com to restore banking services.',
-      url: 'https://sbi-kyc-reactivate-portal.com'
-    }
-  );
-
-  const isUrlAnalysis = currentInput?.type === 'url' || Boolean(!currentInput?.message && currentInput?.url);
-
-  const handleToggleFixture = (variant) => {
-    if (variant === 'SAFE') {
-      setCurrentResult(isUrlAnalysis ? mockSafeUrl : mockSafeMessage);
-    } else {
-      setCurrentResult(isUrlAnalysis ? mockDangerousUrl : mockDangerousMessage);
-    }
+  const currentResult = analysisData?.result || mockDangerousMessage;
+  const currentInput = analysisData?.input || {
+    type: 'message',
+    message: 'URGENT: Your Chase checking account is suspended. Verify at http://chase-verify.xyz/login immediately!',
+    url: 'http://chase-verify.xyz/login'
   };
 
   const handleBackToInput = () => {
@@ -41,6 +26,12 @@ export default function Analyze({
       onNavigate('analyze');
     }
   };
+
+  const verdict = currentResult?.verdict || 'Dangerous';
+  const overallScore = currentResult?.overall_score ?? currentResult?.risk_score ?? 0;
+  const reasons = currentResult?.reasons || [];
+  const textRisk = currentResult?.text_risk || null;
+  const urlRisk = currentResult?.url_risk || null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', maxWidth: '780px', margin: '0 auto' }}>
@@ -65,50 +56,6 @@ export default function Analyze({
           <span>←</span>
           <span>Analyze Another Message or Link</span>
         </button>
-
-        {/* Live fixture switcher for judges */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          backgroundColor: 'var(--bg-card)',
-          padding: '0.35rem 0.75rem',
-          borderRadius: '6px',
-          fontSize: '0.8rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <span style={{ color: 'var(--text-muted)' }}>Verdict View:</span>
-          <button
-            type="button"
-            onClick={() => handleToggleFixture('DANGEROUS')}
-            style={{
-              backgroundColor: currentResult.verdict === 'DANGEROUS' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-              color: currentResult.verdict === 'DANGEROUS' ? '#ef4444' : 'var(--text-muted)',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '0.2rem 0.5rem',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
-          >
-            Dangerous
-          </button>
-          <button
-            type="button"
-            onClick={() => handleToggleFixture('SAFE')}
-            style={{
-              backgroundColor: currentResult.verdict === 'SAFE' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-              color: currentResult.verdict === 'SAFE' ? '#10b981' : 'var(--text-muted)',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '0.2rem 0.5rem',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
-          >
-            Safe
-          </button>
-        </div>
       </div>
 
       {/* Main Result Card */}
@@ -135,10 +82,12 @@ export default function Analyze({
               Risk Assessment
             </span>
             <h2 style={{ fontSize: '1.5rem', color: '#f8fafc', margin: '0.2rem 0 0' }}>
-              {currentResult.verdict === 'DANGEROUS' ? 'Threat Detected' : 'Low Detected Risk'}
+              {verdict.toLowerCase() === 'dangerous'
+                ? 'High Risk Threat Detected'
+                : (verdict.toLowerCase() === 'suspicious' ? 'Suspicious Indicators Detected' : 'Low Detected Risk')}
             </h2>
           </div>
-          <RiskBadge verdict={currentResult.verdict} />
+          <RiskBadge verdict={verdict} />
         </div>
 
         {/* Analyzed Content preview */}
@@ -152,7 +101,7 @@ export default function Analyze({
           gap: '0.35rem'
         }}>
           <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Analyzed {isUrlAnalysis ? 'URL' : 'Content'}
+            Analyzed Content
           </span>
           <p style={{
             fontSize: '0.92rem',
@@ -163,40 +112,35 @@ export default function Analyze({
             overflowY: 'auto',
             margin: 0
           }}>
-            "{currentInput?.message || currentInput?.url || currentResult.domain}"
+            "{currentInput?.message || currentInput?.url || 'ScamShield input content'}"
           </p>
         </div>
 
         {/* 1. Risk Score Breakdown (Always 3 rows: Message Risk, URL Risk, Transaction Risk) */}
         <RiskScore
-          score={currentResult.risk_score}
-          messageRisk={currentResult.text_analysis?.score ?? null}
-          urlRisk={currentResult.url_analysis?.score ?? (isUrlAnalysis ? currentResult.risk_score : null)}
-          transactionRisk={currentResult.transaction_analysis?.score ?? null}
+          score={overallScore}
+          text_risk={textRisk}
+          url_risk={urlRisk}
+          transactionRisk={null}
         />
 
-        {/* 2. ExplanationCard: short paragraph synthesizing why item was flagged built from signals */}
+        {/* 2. ExplanationCard: synthesizes plain-English explanation from reasons and verdict */}
         <ExplanationCard
-          signals={currentResult.signals}
-          verdict={currentResult.verdict}
+          reasons={reasons}
+          verdict={verdict}
         />
 
-        {/* 3. Detected Signals: plain language description */}
+        {/* 3. Detected Reasons / Signals */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           <h3 style={{ fontSize: '1.05rem', color: '#f8fafc', margin: 0 }}>
-            Identified Threat Signals
+            Detected Threat Reasons
           </h3>
-          <SignalList signals={currentResult.signals} />
+          <SignalList reasons={reasons} />
         </div>
 
-        {/* 4. Recommendation Card */}
+        {/* 4. Recommendation Card (Client-side derived from verdict) */}
         <RecommendationCard
-          recommendation={
-            currentResult.recommendation ||
-            (currentResult.verdict === 'DANGEROUS'
-              ? 'Do not click any embedded links, enter passwords, or transfer funds. Report this incident to prevent others from falling victim.'
-              : 'Low detected risk. Always confirm the identity of unknown senders through trusted channels.')
-          }
+          verdict={verdict}
         />
 
         {/* Bottom Actions with ReportButton */}

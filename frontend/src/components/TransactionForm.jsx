@@ -6,12 +6,12 @@ export const TRANSACTION_PRESETS = [
     label: '🚨 High-Risk Late-Night Spike',
     data: {
       amount: 50000,
-      payee: 'ABC_UNKNOWN',
+      payee: 'crypto.escrow@upi',
       is_new_payee: true,
       transaction_hour: 2,
       recent_transaction_count: 8,
       average_transaction_amount: 1200,
-      anomaly_note: 'Unrecognized mobile device; VPN detected from unfamiliar IP'
+      anomaly_note: 'Urgent customs fee and kyc unlock penalty'
     }
   },
   {
@@ -29,15 +29,15 @@ export const TRANSACTION_PRESETS = [
   },
   {
     id: 'velocity_spike',
-    label: '⚠️ Rapid Velocity Spike',
+    label: '⚠️ Moderate Velocity Spike',
     data: {
-      amount: 25000,
-      payee: 'CryptoTrader_99',
+      amount: 14250,
+      payee: 'quickpay.vendor@upi',
       is_new_payee: true,
-      transaction_hour: 23,
-      recent_transaction_count: 12,
+      transaction_hour: 14,
+      recent_transaction_count: 6,
       average_transaction_amount: 1500,
-      anomaly_note: 'First login from new location'
+      anomaly_note: 'Urgent bulk stock invoice'
     }
   }
 ];

@@ -1,12 +1,12 @@
 import React from 'react';
-import { analyzeMessage, analyzeUrl } from '../services/api';
+import { checkMessage } from '../services/api';
 
 export default function AnalyzeButton({
   message = '',
   url = '',
   loading = false,
   disabled = false,
-  variant = 'DANGEROUS',
+  variant = 'Dangerous',
   onClick,
   onResult,
   onError,
@@ -25,24 +25,17 @@ export default function AnalyzeButton({
     if (isDisabled) return;
 
     try {
-      let result;
-      let analysisType;
+      const trimmedMsg = message.trim();
+      const trimmedUrl = url.trim();
 
-      if (hasMessage) {
-        analysisType = 'message';
-        result = await analyzeMessage({
-          message: message.trim(),
-          url: hasUrl ? url.trim() : null,
-          transaction: null
-        }, variant);
-      } else if (hasUrl) {
-        analysisType = 'url';
-        result = await analyzeUrl(url.trim(), variant);
-      }
+      const result = await checkMessage({
+        message: trimmedMsg || trimmedUrl,
+        urls: trimmedUrl ? [trimmedUrl] : undefined
+      }, variant);
 
       if (onResult) {
         onResult(result, {
-          type: analysisType,
+          type: hasMessage ? 'message' : 'url',
           input: hasMessage ? message : url,
           url: hasUrl ? url : null
         });
@@ -57,7 +50,7 @@ export default function AnalyzeButton({
   };
 
   const getButtonText = () => {
-    if (loading) return 'Analyzing Threat Signals...';
+    if (loading) return 'Scanning Threat Signals...';
     if (label) return label;
     if (!hasMessage && hasUrl) return 'Scan Bare URL';
     return 'Scan & Analyze Risk';

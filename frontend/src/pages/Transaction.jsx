@@ -3,24 +3,24 @@ import TransactionForm from '../components/TransactionForm';
 import RiskBadge from '../components/RiskBadge';
 import RiskScore from '../components/RiskScore';
 import SignalList from '../components/SignalList';
+import ExplanationCard from '../components/ExplanationCard';
 import RecommendationCard from '../components/RecommendationCard';
 import ReportButton from '../components/ReportButton';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
-import { analyzeTransaction } from '../services/api';
+import { checkTransaction } from '../services/api';
 
 export default function Transaction({ onNavigate }) {
   const [formData, setFormData] = useState({
     amount: 50000,
-    payee: 'ABC',
+    payee: 'crypto_escrow_refund@upi',
     is_new_payee: true,
     transaction_hour: 2,
     recent_transaction_count: 8,
     average_transaction_amount: 1200,
-    anomaly_note: ''
+    anomaly_note: 'Urgent customs clearance fee and kyc unlock'
   });
 
-  const [mockVariant, setMockVariant] = useState('DANGEROUS');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
@@ -42,7 +42,23 @@ export default function Transaction({ onNavigate }) {
     setError(null);
 
     try {
-      const response = await analyzeTransaction(formData, mockVariant);
+      let timestamp = undefined;
+      if (formData.transaction_hour !== undefined && formData.transaction_hour !== null) {
+        const d = new Date();
+        d.setUTCHours(Number(formData.transaction_hour), 0, 0, 0);
+        timestamp = d.toISOString();
+      }
+
+      const payload = {
+        payee: formData.payee.trim(),
+        amount: Number(formData.amount),
+        timestamp: timestamp,
+        account_type: formData.payee.includes('@') ? 'upi' : (formData.payee.toLowerCase().includes('crypto') ? 'crypto' : 'bank_transfer'),
+        is_first_time: formData.is_new_payee,
+        notes: formData.anomaly_note || undefined
+      };
+
+      const response = await checkTransaction(payload);
       setResult(response);
     } catch (err) {
       setError(err?.message || "Failed to analyze transaction. Please check inputs and retry.");
@@ -59,12 +75,12 @@ export default function Transaction({ onNavigate }) {
   const handlePresetSelect = (preset) => {
     setFormData(preset.data);
     setError(null);
-    if (preset.id === 'safe_routine') {
-      setMockVariant('SAFE');
-    } else {
-      setMockVariant('DANGEROUS');
-    }
   };
+
+  const verdict = result?.verdict || 'Dangerous';
+  const riskScore = result?.risk_score ?? 0;
+  const reasons = result?.reasons || [];
+  const riskFactors = result?.risk_factors || [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '780px', margin: '0 auto' }}>
@@ -78,57 +94,7 @@ export default function Transaction({ onNavigate }) {
         </p>
       </div>
 
-      {/* Mock Testing Mode Toggle */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: 'var(--bg-card)',
-        padding: '0.65rem 1rem',
-        borderRadius: '8px',
-        border: '1px solid var(--border-color)',
-        fontSize: '0.85rem'
-      }}>
-        <span style={{ color: 'var(--text-muted)' }}>Mock Testing Verdict:</span>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <label style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            cursor: 'pointer',
-            color: mockVariant === 'DANGEROUS' ? '#ef4444' : 'var(--text-muted)',
-            fontWeight: mockVariant === 'DANGEROUS' ? '600' : '400'
-          }}>
-            <input
-              type="radio"
-              name="tx_variant"
-              value="DANGEROUS"
-              checked={mockVariant === 'DANGEROUS'}
-              onChange={() => setMockVariant('DANGEROUS')}
-            />
-            Dangerous Sample
-          </label>
-          <label style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            cursor: 'pointer',
-            color: mockVariant === 'SAFE' ? '#10b981' : 'var(--text-muted)',
-            fontWeight: mockVariant === 'SAFE' ? '600' : '400'
-          }}>
-            <input
-              type="radio"
-              name="tx_variant"
-              value="SAFE"
-              checked={mockVariant === 'SAFE'}
-              onChange={() => setMockVariant('SAFE')}
-            />
-            Safe Sample
-          </label>
-        </div>
-      </div>
-
-      {/* Screen C Input Form */}
+      {/* Input Form */}
       {!result && (
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <TransactionForm
@@ -167,7 +133,7 @@ export default function Transaction({ onNavigate }) {
       {loading && <LoadingState message="ScamShield is analyzing payment velocity, payee history, and financial indicators..." />}
       {error && <ErrorState error={error} onRetry={handleSubmit} />}
 
-      {/* Reusing Screen B Result Components */}
+      {/* Result Card */}
       {result && !loading && (
         <div style={{
           display: 'flex',
@@ -192,10 +158,12 @@ export default function Transaction({ onNavigate }) {
                 Payment Assessment
               </span>
               <h3 style={{ fontSize: '1.4rem', color: '#f8fafc', margin: '0.2rem 0 0' }}>
-                {result.verdict === 'DANGEROUS' ? 'High Transaction Risk' : 'Low Detected Risk'}
+                {verdict.toLowerCase() === 'dangerous'
+                  ? 'High Transaction Risk'
+                  : (verdict.toLowerCase() === 'suspicious' ? 'Moderate Transaction Risk' : 'Low Detected Risk')}
               </h3>
             </div>
-            <RiskBadge verdict={result.verdict} />
+            <RiskBadge verdict={verdict} />
           </div>
 
           {/* Transaction Summary Card */}
@@ -229,35 +197,37 @@ export default function Transaction({ onNavigate }) {
             </div>
             {formData.anomaly_note && (
               <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem' }}>
-                <span style={{ color: 'var(--text-muted)', display: 'block' }}>Anomaly Note:</span>
+                <span style={{ color: 'var(--text-muted)', display: 'block' }}>Anomaly / Memo Note:</span>
                 <span style={{ color: '#cbd5e1', fontStyle: 'italic' }}>"{formData.anomaly_note}"</span>
               </div>
             )}
           </div>
 
-          {/* Reused Screen B Component 1: RiskScore (All 3 rows) */}
+          {/* RiskScore (All 3 rows, transactionRisk set) */}
           <RiskScore
-            score={result.risk_score}
+            score={riskScore}
             messageRisk={null}
             urlRisk={null}
-            transactionRisk={result.risk_score}
+            transactionRisk={riskScore}
           />
 
-          {/* Reused Screen B Component 2: SignalList */}
+          {/* ExplanationCard synthesized from reasons */}
+          <ExplanationCard
+            reasons={reasons}
+            verdict={verdict}
+          />
+
+          {/* Risk Factors / Threat Indicators */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <h4 style={{ fontSize: '1rem', color: '#f8fafc', margin: 0 }}>
-              Transaction Risk Indicators
+              Transaction Risk Factors
             </h4>
-            <SignalList signals={result.signals} />
+            <SignalList signals={riskFactors.length > 0 ? riskFactors : reasons} />
           </div>
 
-          {/* Reused Screen B Component 3: RecommendationCard */}
+          {/* RecommendationCard */}
           <RecommendationCard
-            recommendation={
-              result.verdict === 'DANGEROUS'
-                ? 'High transaction risk detected. Do not authorize this payment or approve 2FA/OTP requests. Verify the recipient through an independent channel before proceeding.'
-                : 'Low detected risk. Normal transaction patterns observed. Always verify transfer details before confirming.'
-            }
+            verdict={verdict}
           />
 
           {/* Bottom Actions with ReportButton */}
